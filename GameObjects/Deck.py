@@ -1,6 +1,12 @@
+################################
+# Joshua Bartlett
+# jcb2254
+# Visual Interfaces to Computers
+################################
 from Card import Card
 from collections import deque
 import random
+
 
 class Deck(object):
     """A deck is a collection of cards"""
@@ -44,8 +50,8 @@ class Deck(object):
         return self._cards.pop()
 
 
-    def total_cards(self):
-        """Returns the total number of cards in the deck currently"""
+    # Python object functions to make code cleaner
+    def __len__(self):
+        """Returns the total number of cards currently in the deck"""
         return len(self._cards)
 
-        
