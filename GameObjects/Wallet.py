@@ -8,10 +8,13 @@
 class Wallet(object):
     """The wallet represents the amount of money a player currently has"""
 
+
+
     def __init__(self, amount=5000):
         """Constructor"""
 
         self._money = amount
+        self._last_bet = 0
 
     
     def place_bet(self, amount):
@@ -19,12 +22,12 @@ class Wallet(object):
         depending on whether or not there was enough money in the wallet to
         complete the bet"""
 
-        self._money -= amount
-
-        if self._money >= 0:
-            return True
-        else:
+        if self._money < amount:
             return False
+        
+        self._money -= amount
+        self._last_bet = amount
+        return True
 
 
     def add_money(self, amount):
@@ -37,6 +40,24 @@ class Wallet(object):
         """Returns the amount of money currently in the wallet"""
 
         return self._money
+
+
+    def get_last_bet(self):
+        """Returns the amount of money that was taken out in the last bet"""
+
+        return self._last_bet
+
+
+    def double_down(self):
+        """Takes out an additional bet and sets the last bet to twice as much"""
+
+        can_pay = self.place_bet(self._last_bet)
+        
+        if can_pay:
+
+            self._last_bet *= 2
+
+        return can_pay
 
 
     # Python object functions to make code cleaner

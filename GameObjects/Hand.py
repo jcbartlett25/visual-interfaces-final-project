@@ -24,7 +24,7 @@ class Hand(object):
     13: 10
     }
 
-    _num_aces = 0
+    _soft_aces = 0
     _total = 0
 
     def __init__(self):
@@ -40,7 +40,7 @@ class Hand(object):
         
         # Keep track of the aces
         if card.value == 1:
-            self._num_aces += 1
+            self._soft_aces += 1
         
         # Keep track of the total
         self._total += self._VALUE_TABLE[card.value]
@@ -49,10 +49,10 @@ class Hand(object):
     def get_total(self):
         """Gets the total value for this hand"""
 
-        # If there's an ace and this hand is a bust, then turn the ace to a 1
-        if self.has_ace() and self._total > 21:
+        # If there's a soft ace and the hand is worth more than 21 points
+        if self.is_soft_hand() and self._total > 21:
             self._total -= 10
-            self._num_aces -= 1
+            self._soft_aces -= 1
 
         return self._total
 
@@ -60,8 +60,8 @@ class Hand(object):
         """Removes all of the cards currently in this hand"""
 
         # Clear everything
-        self._cards.clear()
-        self._num_aces = 0
+        del self._cards[:]
+        self._soft_aces = 0
         self._total = 0
 
 
@@ -71,10 +71,10 @@ class Hand(object):
         return str(self._cards)
 
 
-    def has_ace(self):
+    def is_soft_hand(self):
         """Determines if this hand has an ace card worth 11 points"""
 
-        if self._num_aces > 0:
+        if self._soft_aces > 0:
             return True
         else:
             return False
