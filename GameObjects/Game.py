@@ -66,11 +66,6 @@ class Game(object):
         player_hand.add_card(self.deck.draw_card())
 
 
-    def play_dealers_turn(self):
-        """Plays out the dealers turn"""
-        pass
-
-
     def place_bet(self, player_id, amount):
         """Takes out a bet for the given player, returns whether or not the
         bet is possible"""
@@ -114,7 +109,7 @@ class Game(object):
     def pay_out(self, player_id):
         """Pays the given player 1.5 times their last bet"""
 
-        player = self.players[i]
+        player = self.players[player_id]
         player_wallet = player[1]
         players_bet = player_wallet.get_last_bet()
         payout = int(players_bet * 1.5)

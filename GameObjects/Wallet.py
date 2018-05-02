@@ -36,6 +36,12 @@ class Wallet(object):
         self._money += amount
 
 
+    def return_bet(self):
+        """Gives a player back their bet"""
+
+        self._money += self._last_bet
+
+
     def amount(self):
         """Returns the amount of money currently in the wallet"""
 
@@ -54,7 +60,6 @@ class Wallet(object):
         can_pay = self.place_bet(self._last_bet)
         
         if can_pay:
-
             self._last_bet *= 2
 
         return can_pay

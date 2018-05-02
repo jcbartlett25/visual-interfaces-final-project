@@ -38,6 +38,9 @@ while game.players and KEEP_PLAYING:
 
     print('Round '+str(num_rounds)+'...START!')
 
+    # Reset everyone's hands
+    game.clear_hands()
+
     # Reshuffle the deck when the limit is reached
     if len(game.deck) < SHUFFLE_LIMIT:
         print('Reshuffling cards...Done')
@@ -84,6 +87,18 @@ while game.players and KEEP_PLAYING:
     game.deal_cards()
 
     print('The dealer currently has a ' + str(game.dealer[0]) + ' face up\n')
+
+    # Check if dealer had blackjack
+    dealer_score = game.dealer.get_total()
+    if dealer_score == 21:
+        print('Dealer has Blackjack!')
+        for player_id, player in enumerate(game.players):
+            if player[0].get_total() != 21:
+                print('Sorry Player ' + str(player_id+1) + ', you lose your bet')
+            else:
+                print('Player ' + str(player_id+1) + ' also had blackjack and gets to keep their bet')
+                player[1].return_bet()
+        continue
 
     # Play each player's turn
     for player_id, player in enumerate(game.players):
@@ -149,26 +164,46 @@ while game.players and KEEP_PLAYING:
     # Play out the dealer's turn
     print('The dealer currently has: ' + str(game.dealer))
     print('Their hand is worth ' + str(game.dealer.get_total()))
-
     while game.dealer.get_total() < 17:
         game.dealer.add_card(game.deck.draw_card())
         print('The dealer now draws a...'+ str(game.dealer[-1]))
         print('The dealer currently has: ' + str(game.dealer))
         print('Their hand is worth ' + str(game.dealer.get_total()))
-
     print('The dealer ends their turn with a value of ' + str(game.dealer.get_total()))
+    print('\n\nTime to tally up the bets!')
 
-    # Reset everyone's hands
-    game.clear_hands()
+    dealer_score = game.dealer.get_total()
+
+    # Look at each player and give out money if necessary
+    for player_id, player in enumerate(game.players):
+
+        player_hand = player[0]
+        player_wallet = player[1]
+        player_score = player_hand.get_total()
+
+        if dealer_score > 21 and player_score <= 21:
+            print('Dealer busted...Player ' + str(player_id+1) + ' gets their bet back')
+            player_wallet.return_bet()
+        elif player_score > 21:
+            print('Player ' + str(player_id+1) + ' busted...You lose your bet')
+        elif player_score > dealer_score:
+            print('Player ' + str(player_id+1) + ' beat the dealer...')
+            print('You will receive ' + str(int(player_wallet.get_last_bet()*1.5)) + ' coins')
+            game.pay_out(player_id)
+        elif player_score == dealer_score:
+            print('Player ' + str(player_id+1) + ' has tied with the dealer...You will receive your bet back')
+            player_wallet.return_bet()
+        elif player_score < dealer_score:
+            print('Player ' + str(player_id+1) + ' lost to the dealer...You lose your bet')
+        else:
+            print('idk whaddup witchu')
+
 
     # Ask user if they want to keep going at the end of each round
     answer = raw_input('Would you like to keep playing? (y/n) (Press enter to keep playing) ')
 
     # Default is yes
-    if answer == '':
-        answer = 'y'
-
-    if answer.lower() == 'y':
+    if answer == '' or answer.lower() == 'y':
         print('Awesome!')
         num_rounds += 1
         continue
