@@ -4,12 +4,14 @@ from GameObjects.Deck import Deck
 from GameObjects.Hand import Hand
 from GameObjects.Wallet import Wallet
 from GameObjects.Game import Game
+from recognition import GestureRecognizer
 import time
 
 game = Game()
 player_hand = game.players[0][0]
 player_wallet = game.players[0][1]
 SHUFFLE_LIMIT = 60
+gesture_recognizer = GestureRecognizer()
 
 class BlackJackGUI(tk.Tk):
 
@@ -51,6 +53,10 @@ class BlackJackGUI(tk.Tk):
             #print('hi')
         elif page_name == 'PayoutScreen':
             frame.payout()
+            #print(gesture_recognizer.look_for_gesture())
+
+        elif page_name == 'PlayerTurn':
+            print('hi')
 
 
 class WelcomePage(tk.Frame):
@@ -132,6 +138,11 @@ class PlayerTurn(tk.Frame):
         self.dealer_label_text = tk.StringVar()
         self.dealer_label_text.set('The dealer currently has a ' + ' face up')
         self.dealer_label = tk.Label(self, textvariable=self.dealer_label_text, font=controller.title_font)
+
+        # Info tab
+        self.info_label_text = tk.StringVar()
+        self.info_label_text.set('')
+        self.info_label = tk.Label(self, textvariable=self.info_label_text, font=controller.title_font)
         
         # Cards
         self.card_label_text = tk.StringVar()
@@ -169,14 +180,15 @@ class PlayerTurn(tk.Frame):
         elif method == "stay":
             self.controller.show_frame("DealerTurn")
         elif method == "double":
-            return
+            game.player_double_down(0)
+            self.controller.show_frame("DealerTurn")
 
         current_total = player_hand.get_total()
 
         if current_total == 21:
-            pass
+            self.controller.show_frame("DealerTurn")
         elif current_total > 21:
-            pass
+            self.controller.show_frame("DealerTurn")
 
         self.card_label_text.set(str(player_hand))
         self.card_total_text.set(current_total)
@@ -326,7 +338,7 @@ class PayoutScreen(tk.Frame):
             self.dealer_score_label.pack()
             self.step += 1
             self.after(1250,self.payout)
-        else:
+        elif self.step == 2:
             result = ''
             if player_hand.get_total() > 21:
                 result = 'You busted...You lose your bet of ' + str(player_wallet.get_last_bet())
@@ -339,10 +351,14 @@ class PayoutScreen(tk.Frame):
             elif player_hand.get_total() < game.dealer.get_total():
                 result = 'The dealer beat you...Your lose your bet of ' + str(player_wallet.get_last_bet())
             else:
-                result = 'You tied with the dealer...You receive your bet of ' + + str(player_wallet.get_last_bet()) + ' back'          
+                result = 'You tied with the dealer...You receive your bet of ' + str(player_wallet.get_last_bet()) + ' back'          
             self.result_label_text.set(result)
             self.result_label.pack()
             self.continue_button.pack()
+            self.step += 1
+            self.after(500,self.payout)
+        else:
+            gesture_recognizer.look_for_fist()
             self.step = 0
 
 if __name__ == "__main__":
