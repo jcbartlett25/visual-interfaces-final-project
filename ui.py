@@ -59,9 +59,10 @@ class BlackJackGUI(tk.Tk):
         elif page_name == 'PayoutScreen':
             frame.payout()
             #print(gesture_recognizer.look_for_gesture())
-
         elif page_name == 'PlayerTurn':
-            print('hi')
+            frame.play_turn()
+        else:
+            frame.advance()
 
 
 class WelcomePage(tk.Frame):
@@ -78,6 +79,11 @@ class WelcomePage(tk.Frame):
 
     def show(self):
         return self
+
+    def advance(self):
+        gesture_recognizer.wait_for_fist()
+        self.controller.show_frame("BettingPage")
+
 
 
 class BettingPage(tk.Frame):
@@ -137,12 +143,18 @@ class BettingPage(tk.Frame):
 
         return self
 
+    def advance(self):
+        gesture_recognizer.wait_for_fist()
+        game.place_bet(0, 500)
+        self.controller.show_frame("PlayerTurn")
+
 
 class PlayerTurn(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.gesture_to_method = {'left and right': "stay", 'up and down': "hit", 'fist': "double"}
 
         # Dealer Card
         self.dealer_label_text = tk.StringVar()
@@ -209,6 +221,33 @@ class PlayerTurn(tk.Frame):
         self.card_total_text.set(player_hand.get_total())
         return self
 
+    def play_turn(self):
+
+        result = gesture_recognizer.look_for_gesture()
+        method = self.gesture_to_method[result]
+
+        if method == "hit":
+            
+            game.player_hit(0)
+            current_total = player_hand.get_total()
+            self.card_label_text.set(str(player_hand))
+            self.card_total_text.set(current_total)
+            
+            if current_total >= 21:
+                self.controller.show_frame("DealerTurn")
+
+            return self.play_turn()
+
+        if method == "stay":
+            self.controller.show_frame("DealerTurn")
+        elif method == "double":
+            game.player_double_down(0)
+            self.controller.show_frame("DealerTurn")
+
+
+
+
+
 
 class DealerTurn(tk.Frame):
 
@@ -249,25 +288,6 @@ class DealerTurn(tk.Frame):
         self.round = 0
         #self.dealer_turn()
 
-    # Updates the total
-    def update(self, method):
-        if method == "hit":
-            game.player_hit(0)
-        elif method == "stay":
-            self.controller.show_frame("DealerTurn")
-        elif method == "double":
-            return
-
-        current_total = player_hand.get_total()
-
-        if current_total == 21:
-            pass
-        elif current_total > 21:
-            pass
-
-        self.card_label_text.set(str(player_hand))
-        self.card_total_text.set(current_total)
-
     def show(self):
         self.information_label_text.set('Dealer Turn...')
         self.card_label_text.set(str(game.dealer))
@@ -289,6 +309,8 @@ class DealerTurn(tk.Frame):
             self.information_label_text.set('The dealer ends their turn with a score of ' + str(game.dealer.get_total()))
             self.hit_button.grid(row=4, column=0)
             self.round = 0
+            gesture_recognizer.wait_for_fist()
+            self.controller.show_frame('PayoutScreen')
         
 
 class PayoutScreen(tk.Frame):
@@ -367,9 +389,10 @@ class PayoutScreen(tk.Frame):
             self.continue_button.pack()
             self.step += 1
             self.after(500,self.payout)
-        else:
-            gesture_recognizer.look_for_fist()
+        elif self.step == 3:
+            gesture_recognizer.wait_for_fist()
             self.step = 0
+            self.controller.show_frame('BettingPage')
 
 if __name__ == "__main__":
     app = BlackJackGUI()

@@ -58,13 +58,13 @@ class GestureRecognizer(object):
         # If the area of the circle is similar to that of the contour
         # then we can assume that the gesture is not that of a splayed hand
         # and more circular aka like a fist
-        if(circle_area*.55<cnt_area):
+        if(circle_area * .55 < cnt_area):
             return "fist"
 
         return "notfist"
 
 
-    def look_for_fist(self):
+    def wait_for_fist(self):
 
         self.set_up()
         ready_to_return = False
@@ -143,8 +143,10 @@ class GestureRecognizer(object):
                     print('cmon man')
 
             # Display the images
-            cv2.imshow('gesture', crop_img)
-            cv2.imshow('camera feed', frame)
+            crop_img = cv2.resize(crop_img, (480, 360))
+            frame = cv2.resize(frame, (480, 360))
+            horizontal = np.concatenate((frame, crop_img), axis=1)
+            cv2.imshow('gesture', horizontal)
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -221,7 +223,7 @@ class GestureRecognizer(object):
 
                     result = self.read_motion(x_variance, y_variance, cnt)
                     self.circular_buffer_gesture.append(result)
-                    #print(result)
+                    print(result)
 
                     # If we have seen the same detected gesture enough times in a row, then we are done
                     if self.circular_buffer_gesture.count(self.circular_buffer_gesture[0]) == len(self.circular_buffer_gesture):
@@ -234,8 +236,11 @@ class GestureRecognizer(object):
                     print('cmon man')
 
             # Display the images
-            cv2.imshow('gesture', crop_img)
-            cv2.imshow('camera feed', frame)
+            crop_img = cv2.resize(crop_img, (480, 360))
+            frame = cv2.resize(frame, (480, 360))
+            horizontal = np.concatenate((frame, crop_img), axis=1)
+            cv2.imshow('gesture', horizontal)
+
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -245,6 +250,4 @@ class GestureRecognizer(object):
         self.camera.release()
         cv2.destroyAllWindows()
         return self.circular_buffer_gesture[0]
-
-
 
