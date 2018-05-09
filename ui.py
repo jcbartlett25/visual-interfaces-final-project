@@ -1,3 +1,8 @@
+################################
+# Joshua Bartlett
+# jcb2254
+# Visual Interfaces to Computers
+################################
 import Tkinter as tk
 import tkFont as tkfont
 from GameObjects.Deck import Deck
@@ -82,7 +87,7 @@ class BettingPage(tk.Frame):
         self.controller = controller
 
         # Wallet total
-        self.total_label_text = tk.IntVar()
+        self.total_label_text = tk.StringVar()
         self.total_label_text.set(0)
         self.total_label = tk.Label(self, textvariable=self.total_label_text, font=controller.title_font)
 
@@ -123,7 +128,12 @@ class BettingPage(tk.Frame):
         game.deal_cards()
         game.deal_cards()
 
-        self.total_label_text.set(player_wallet.amount())
+        if player_wallet.amount() < 500:
+            self.total_label_text.set('You do not have enough coins...')
+            self.add_button.grid_forget()
+            return self
+
+        self.total_label_text.set(str(player_wallet.amount()))
 
         return self
 

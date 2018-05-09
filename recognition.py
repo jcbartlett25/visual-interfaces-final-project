@@ -1,3 +1,9 @@
+################################
+# Joshua Bartlett
+# jcb2254
+# Visual Interfaces to Computers
+################################
+
 import cv2                              
 import numpy as np
 import math
@@ -89,7 +95,7 @@ class GestureRecognizer(object):
             cv2.rectangle(frame,(320,10),(630,240),(0,255,0),2)
 
             # Find the contours in the cropped image
-            crop_img, contours, hierarchy = cv2.findContours(crop_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(crop_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
             if contours:
 
@@ -180,7 +186,7 @@ class GestureRecognizer(object):
             cv2.rectangle(frame,(320,10),(630,240),(0,255,0),2)
 
             # Find the contours in the cropped image
-            crop_img, contours, hierarchy = cv2.findContours(crop_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(crop_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
             if contours:
 
@@ -239,4 +245,6 @@ class GestureRecognizer(object):
         self.camera.release()
         cv2.destroyAllWindows()
         return self.circular_buffer_gesture[0]
+
+
 
